@@ -6,6 +6,9 @@
  * которые реально растут в store (см. computeStats в game/store.jsx).
  */
 
+import { HALLS } from './halls.js';
+import { QUIZ } from './quiz.js';
+
 export const XP_RULES = {
   HALL_VISIT: 40, // зашёл и подтвердил чекпойнт
   FIRST_STEPS_BONUS: 25, // первый зал в игре
@@ -13,8 +16,16 @@ export const XP_RULES = {
   ROUTE_FINISH: 80, // маршрут целиком
   QUIZ_CORRECT: 30, // верный ответ
   QUIZ_HINT_COST: 10, // штраф, если взял подсказку
-  STREAK_BONUS: 10, // за каждую серию из 3 верных подряд
 };
+
+/** Сколько залов на этаже — берём из halls.js, чтобы текст не устаревал. */
+const hallsOn = (floor) => HALLS.filter((h) => h.floor === floor).length;
+
+/**
+ * Цель бейджа «Знаток». Одно число и для проверки, и для подсказки —
+ * иначе подсказка начнёт обещать не то, что реально требует проверка.
+ */
+export const QUIZ_BADGE_TARGET = Math.min(8, QUIZ.length);
 
 export const LEVELS = [
   { level: 1, title: 'Первый шаг', min: 0, icon: '🎫' },
@@ -56,14 +67,14 @@ export const BADGES = [
     id: 'floor-1',
     title: 'Весь первый этаж',
     icon: '🏛️',
-    hint: 'Обойти все 14 залов первого этажа.',
+    hint: `Обойти все ${hallsOn(1)} залов первого этажа.`,
     check: (s) => s.floorDone?.[1] === true,
   },
   {
     id: 'floor-2',
     title: 'Весь второй этаж',
     icon: '🖼️',
-    hint: 'Обойти все 11 залов второго этажа.',
+    hint: `Обойти все ${hallsOn(2)} залов второго этажа.`,
     check: (s) => s.floorDone?.[2] === true,
   },
   {
@@ -77,8 +88,8 @@ export const BADGES = [
     id: 'quiz-master',
     title: 'Знаток',
     icon: '💡',
-    hint: 'Ответить верно на 8 вопросов викторины.',
-    check: (s) => s.quizCorrect >= 8,
+    hint: `Ответить верно на ${QUIZ_BADGE_TARGET} вопросов из ${QUIZ.length}.`,
+    check: (s) => s.quizCorrect >= QUIZ_BADGE_TARGET,
   },
 ];
 
@@ -88,7 +99,13 @@ export const TOTAL_BADGES = BADGES.length;
 export const QUEST_LOG = [
   { id: 'visit', text: 'Найди свободный зал и подтверди его код на чекпойнте.' },
   { id: 'route', text: 'Открой маршрут и пройди его по ниточке — там XP за каждый шаг.' },
-  { id: 'quiz', text: 'Загляни в викторину: 8 верных ответов дают бейдж «Знаток».' },
-  { id: 'floor-1', text: 'Первый этаж: 14 залов от египетских ушебти до венецианской живописи.' },
-  { id: 'floor-2', text: 'Второй этаж: 11 залов — слепки, галерея и коллекция монет.' },
+  {
+    id: 'quiz',
+    text: `Загляни в викторину: ${QUIZ_BADGE_TARGET} верных ответов дают бейдж «Знаток».`,
+  },
+  {
+    id: 'floor-1',
+    text: `Первый этаж: ${hallsOn(1)} залов от египетских ушебти до венецианской живописи.`,
+  },
+  { id: 'floor-2', text: `Второй этаж: ${hallsOn(2)} залов — слепки, галерея и коллекция монет.` },
 ];

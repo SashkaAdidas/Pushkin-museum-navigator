@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { XP_RULES } from '../data/game.js';
 import { Pill, EmptyState, SectionTitle } from '../components/ui.jsx';
 import { FLOORS, HALLS } from '../data/halls.js';
 import { useGame } from '../game/store.jsx';
@@ -97,7 +98,11 @@ export default function HallsPage() {
                     зал {hall.number} · {hall.tag} · ≈ {hall.minutes} мин
                   </small>
                 </span>
-                {visited ? <Pill tone="green">✓</Pill> : <Pill tone="neutral">+20 XP</Pill>}
+                {visited ? (
+                  <Pill tone="green">✓</Pill>
+                ) : (
+                  <Pill tone="neutral">+{XP_RULES.HALL_VISIT} XP</Pill>
+                )}
               </Link>
             );
           })}

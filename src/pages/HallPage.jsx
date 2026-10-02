@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { Pill, EmptyState, SectionTitle } from '../components/ui.jsx';
 import { HALLS_BY_ID } from '../data/halls.js';
+import { XP_RULES } from '../data/game.js';
 import { useGame } from '../game/store.jsx';
 import CheckpointForm from '../components/CheckpointForm.jsx';
 import HallQuiz from '../components/HallQuiz.jsx';
@@ -41,7 +42,7 @@ export default function HallPage() {
       <header className="card">
         <div className="hall-header">
           <Pill tone={visited ? 'green' : 'gold'}>
-            {visited ? '✓ Зал закрыт' : `+20 XP · ${hall.tag}`}
+            {visited ? '✓ Зал закрыт' : `+${XP_RULES.HALL_VISIT} XP · ${hall.tag}`}
           </Pill>
           <small className="hall-header__meta">
             {hall.floor} этаж · зал {hall.number} · ≈ {hall.minutes} мин
