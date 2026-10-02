@@ -27,25 +27,35 @@ const hallsOn = (floor) => HALLS.filter((h) => h.floor === floor).length;
  */
 export const QUIZ_BADGE_TARGET = Math.min(8, QUIZ.length);
 
+/**
+ * Пороги уровней. Имена полей — контракт с UI:
+ *   xp   читает ProfilePage (список уровней и подсветка достигнутого),
+ *   note читают MapPage (подзаголовок героя) и ProfilePage.
+ */
 export const LEVELS = [
-  { level: 1, title: 'Первый шаг', min: 0, icon: '🎫' },
-  { level: 2, title: 'Зритель', min: 120, icon: '👀' },
-  { level: 3, title: 'Искатель', min: 320, icon: '🧭' },
-  { level: 4, title: 'Ценитель', min: 640, icon: '🏛️' },
-  { level: 5, title: 'Хранитель', min: 1100, icon: '🗝️' },
-  { level: 6, title: 'Академик', min: 1700, icon: '🎓' },
+  { level: 1, title: 'Первый шаг', xp: 0, note: 'Вы вошли в главное здание', icon: '🎫' },
+  { level: 2, title: 'Зритель', xp: 120, note: 'Первые залы позади', icon: '👀' },
+  { level: 3, title: 'Искатель', xp: 320, note: 'Уже понимаете, где что лежит', icon: '🧭' },
+  { level: 4, title: 'Ценитель', xp: 640, note: 'Уверенно ходите между экспозициями', icon: '🏛️' },
+  { level: 5, title: 'Хранитель', xp: 1100, note: 'Проходите маршруты целиком', icon: '🗝️' },
+  { level: 6, title: 'Академик', xp: 1700, note: 'Максимальная глубина погружения', icon: '🎓' },
 ];
 
+/**
+ * @returns {{level:number,title:string,note:string,icon:string,next:?object,
+ *            remaining:number,progress:number}} remaining — сколько XP до next
+ *            (0 на максимальном уровне), progress — заполненность полосы 0..1.
+ */
 export function levelForXp(xp) {
   let current = LEVELS[0];
-  for (const l of LEVELS) if (xp >= l.min) current = l;
-  const next = LEVELS.find((l) => l.min > xp) || null;
-  const span = next ? next.min - current.min : 1;
-  const filled = next ? xp - current.min : 1;
+  for (const l of LEVELS) if (xp >= l.xp) current = l;
+  const next = LEVELS.find((l) => l.xp > xp) || null;
+  const span = next ? next.xp - current.xp : 1;
+  const filled = next ? xp - current.xp : 1;
   return {
     ...current,
     next,
-    toNext: next ? Math.max(0, next.min - xp) : 0,
+    remaining: next ? Math.max(0, next.xp - xp) : 0,
     progress: next ? Math.min(1, filled / span) : 1,
   };
 }
@@ -60,35 +70,35 @@ export const BADGES = [
     id: 'first-blood',
     title: 'Первый шаг',
     icon: '🚪',
-    hint: 'Подтвердить чекпойнт в любом зале.',
+    desc: 'Подтвердить чекпойнт в любом зале',
     check: (s) => s.visited.length >= 1,
   },
   {
     id: 'floor-1',
     title: 'Весь первый этаж',
     icon: '🏛️',
-    hint: `Обойти все ${hallsOn(1)} залов первого этажа.`,
+    desc: `Обойти все ${hallsOn(1)} залов первого этажа`,
     check: (s) => s.floorDone?.[1] === true,
   },
   {
     id: 'floor-2',
     title: 'Весь второй этаж',
     icon: '🖼️',
-    hint: `Обойти все ${hallsOn(2)} залов второго этажа.`,
+    desc: `Обойти все ${hallsOn(2)} залов второго этажа`,
     check: (s) => s.floorDone?.[2] === true,
   },
   {
     id: 'route-master',
     title: 'По ниточке',
     icon: '🧵',
-    hint: 'Пройти любой маршрут от точки до точки.',
+    desc: 'Пройти любой маршрут от точки до точки',
     check: (s) => s.routesFinished.length >= 1,
   },
   {
     id: 'quiz-master',
     title: 'Знаток',
     icon: '💡',
-    hint: `Ответить верно на ${QUIZ_BADGE_TARGET} вопросов из ${QUIZ.length}.`,
+    desc: `Ответить верно на ${QUIZ_BADGE_TARGET} вопросов из ${QUIZ.length}`,
     check: (s) => s.quizCorrect >= QUIZ_BADGE_TARGET,
   },
 ];

@@ -190,35 +190,156 @@
 
 /* ── Legend ─────────────────────────────────────────────────── */
 
+/* Легенда она же фильтр: чипы с образцом цвета и счётчиком залов.
+   Образцы прямоугольные (22×14), один в один как плитка зала на плане. */
 .legend {
   display: flex;
-  gap: var(--space-md);
-  padding: var(--space-sm) var(--space-md);
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-left: 0.75rem;
+  padding-bottom: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--clr-text-dim);
+  list-style: none;
   font-size: 0.75rem;
   color: var(--clr-text-dim);
 }
 
-.legend__swatch {
-  display: inline-block;
+.legend li {
+  display: flex;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--clr-text-dim);
+}
+
+/* Чип-переключатель: клик по образцу цвета скрывает/показывает этот тип залов */
+.legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.6rem 0.25rem 0.45rem;
+  border: 1px solid var(--clr-text-dim);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 1.4;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.legend__item:hover {
+  border-color: var(--clr-text-dim);
+  color: var(--clr-text);
+}
+
+.legend__item:focus-visible {
+  outline: 2px solid var(--clr-accent);
+  outline-offset: 2px;
+}
+
+/* Включён — обычный вид; выключен — тусклый, текст перечёркнут */
+.legend__item.is-selected {
+  border-color: var(--clr-text-dim);
+  background: var(--clr-surface-hi);
+  color: var(--clr-text);
+}
+
+.legend__item.is-off {
+  opacity: 0.45;
+}
+
+.legend__item.is-off .legend__text {
+  text-decoration: line-through;
+}
+
+/* Галочка видна только у включённого типа, чтобы состояние читалось не цветом */
+.legend__check {
+  flex: none;
   width: 12px;
   height: 12px;
   border-radius: 3px;
-  margin-right: 4px;
-  vertical-align: middle;
+  border: 1px solid var(--clr-accent);
+  background: var(--clr-accent);
+  pointer-events: none;
 }
 
+.legend__item.is-off .legend__check {
+  background: transparent;
+  border-color: var(--clr-text-dim);
+}
+
+.legend__text {
+  white-space: nowrap;
+}
+
+.legend__count {
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: var(--clr-surface-hi);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.7rem;
+}
+
+.legend__item.is-selected .legend__count {
+  background: var(--clr-surface);
+}
+
+.legend__swatch {
+  flex: none;
+  width: 22px;
+  height: 14px;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+/* Как .plan__hall без класса is-visited */
 .legend__swatch--todo {
+  display: none;
   background: var(--clr-surface-hi);
   border: 1px solid var(--clr-text-dim);
 }
 
+/* Как .plan__hall.is-visited — цвет ровно тот же, что на плане */
 .legend__swatch--done {
-  background: var(--clr-accent);
+  display: none;
+  background: var(--clr-accent-soft);
+  border: 1px solid var(--clr-accent);
+}
+
+/* Кнопка сброса появляется только когда что-то скрыто */
+.legend__reset {
+  padding: 0.25rem 0.6rem;
+  border: 1px dashed var(--clr-accent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--clr-accent);
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.legend__reset:hover {
+  background: var(--clr-accent-soft);
 }
 
 .legend__hint {
-  margin-left: auto;
   font-style: italic;
+}
+
+/* Все типы скрыты — объясняем почему план пустой, а не молчим */
+.legend__empty {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px dashed var(--clr-text-dim);
+  border-radius: var(--radius);
+  background: var(--clr-surface-hi);
+  color: var(--clr-text);
+  font-size: 0.8rem;
+  font-style: normal;
 }
 
 /* ── Hall grid ──────────────────────────────────────────────── */
@@ -821,11 +942,26 @@
 
 .plan {
   position: relative;
-  aspect-ratio: 1000 / 560;
+  aspect-ratio: 1200 / 620;
   width: 100%;
   background: var(--clr-surface);
 }
 
+/* Подпись входа — над верхним рядом, вровень с краями залов. */
+.plan__hint {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--clr-text-dim);
+  border-radius: 6px;
+  font-size: 0.7rem;
+  color: var(--clr-text-dim);
+  text-align: center;
+}
+
+/* Сквозной коридор между анфиладами. Пунктир и подложка — чтобы полоса
+   читалась проходом, а не просто дырой между рядами залов. */
 .plan__corridor {
   position: absolute;
   left: 2%;
@@ -834,6 +970,7 @@
   align-items: center;
   justify-content: center;
   background: var(--clr-surface-hi);
+  border: 1px dashed var(--clr-text-dim);
   border-radius: 6px;
   font-size: 0.7rem;
   color: var(--clr-text-dim);
@@ -862,6 +999,18 @@
 .plan__hall.is-visited {
   background: var(--clr-accent-soft);
   border-color: var(--clr-accent);
+}
+
+/* Тип залов снят с фильтра в легенде. Не display:none — план это карта,
+   пустые места на ней сломали бы пространственную память. */
+.plan__hall.is-dim {
+  opacity: 0.22;
+  filter: grayscale(1);
+}
+
+.plan__hall.is-dim:hover {
+  opacity: 0.65;
+  filter: none;
 }
 
 .plan__hall-top {

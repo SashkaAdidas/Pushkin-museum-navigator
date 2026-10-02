@@ -17,6 +17,16 @@ export default function MapPage() {
   const halls = HALLS_BY_FLOOR(floor);
   const doneOnFloor = halls.filter((h) => state.visited[h.id]).length;
 
+  // Фильтр по статусу. Плитку на плане не убираем из DOM, а затемняем:
+  // залы расставлены абсолютно, удаление оставило бы дыры в анфиладе.
+  const [show, setShow] = useState({ todo: true, done: true });
+  const toggle = (key) => setShow((s) => ({ ...s, [key]: !s[key] }));
+  const isDone = (hall) => Boolean(state.visited[hall.id]);
+
+  const dimIds = new Set(halls.filter((h) => !show[isDone(h) ? 'done' : 'todo']).map((h) => h.id));
+  const shownHalls = halls.filter((h) => show[isDone(h) ? 'done' : 'todo']);
+  const todoOnFloor = halls.length - doneOnFloor;
+
   return (
     <>
       <section className="hero card">
@@ -69,16 +79,40 @@ export default function MapPage() {
       </div>
 
       <div className="card plan-card">
-        <FloorPlan floor={floor} />
-        <ul className="legend">
-          <li>
-            <i className="legend__swatch legend__swatch--todo" /> не посещён
-          </li>
-          <li>
-            <i className="legend__swatch legend__swatch--done" /> закрыт по коду
-          </li>
-          <li className="legend__hint">Нажмите на зал, чтобы открыть карточку</li>
-        </ul>
+        <FloorPlan floor={floor} dimIds={dimIds} />
+        <div className="legend" role="group" aria-label="Фильтр залов на плане">
+          <label className={`legend__item${show.todo ? ' is-selected' : ' is-off'}`}>
+            <input
+              type="checkbox"
+              className="legend__check"
+              checked={show.todo}
+              onChange={() => toggle('todo')}
+            />
+            <i className="legend__swatch legend__swatch--todo" aria-hidden="true" />
+            <span className="legend__text">
+              не посещён<b className="legend__count">{todoOnFloor}</b>
+            </span>
+          </label>
+          <label className={`legend__item${show.done ? ' is-selected' : ' is-off'}`}>
+            <input
+              type="checkbox"
+              className="legend__check"
+              checked={show.done}
+              onChange={() => toggle('done')}
+            />
+            <i className="legend__swatch legend__swatch--done" aria-hidden="true" />
+            <span className="legend__text">
+              пройден по коду<b className="legend__count">{doneOnFloor}</b>
+            </span>
+          </label>
+          {dimIds.size > 0 ? (
+            <button type="button" className="legend__reset" onClick={() => setShow({ todo: true, done: true })}>
+              Показать все
+            </button>
+          ) : (
+            <span className="legend__hint">Нажмите на зал, чтобы открыть карточку</span>
+          )}
+        </div>
       </div>
 
       <SectionTitle
@@ -88,9 +122,18 @@ export default function MapPage() {
       />
 
       <div className="hall-grid">
-        {halls.map((hall) => {
-          const visited = Boolean(state.visited[hall.id]);
-          return (
+        {shownHalls.length === 0 ? (
+          <p className="legend__empty">
+            Нет залов, подходящих под фильтр.
+            <br />
+            <button type="button" className="btn btn--ghost btn--sm" onClick={() => setShow({ todo: true, done: true })}>
+              Показать все
+            </button>
+          </p>
+        ) : (
+          shownHalls.map((hall) => {
+            const visited = isDone(hall);
+            return (
             <Link key={hall.id} to={`/halls/${hall.id}`} className={`hall-card${visited ? ' is-done' : ''}`}>
               <div className="hall-card__head">
                 <span className="hall-card__number">зал {hall.number}</span>
@@ -103,8 +146,9 @@ export default function MapPage() {
                 <span>{hall.highlights.length} шедевра</span>
               </div>
             </Link>
-          );
-        })}
+            );
+          })
+        )}
       </div>
 
       <p className="notice">
