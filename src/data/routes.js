@@ -1,4 +1,6 @@
-// Готовые маршруты по музею. Порядок залов важен — он учитывается при подсчёте шагов.
+/**
+ * Готовые маршруты по музею. Порядок залов важен — он учитывается при подсчёте шагов.
+ */
 
 export const ROUTES = [
   {
@@ -8,30 +10,41 @@ export const ROUTES = [
     minutes: 90,
     level: 'Для всех',
     description:
-      'Если вы в музее впервые: античное золото, итальянский дворик и импрессионисты — три опоры коллекции.',
+      'Если вы в музее впервые: египетские мумии, троянское золото, Итальянский дворик ' +
+      'и Рембрандт — четыре точки, которые дают карту коллекции.',
     color: '#e0b64d',
-    halls: ['trojan', 'italian-high', 'dutch', 'impressionism', 'post-impressionism'],
+    hallIds: ['egypt', 'troy', 'italian-yard', 'holland'],
   },
   {
     id: 'antique-evening',
     title: 'Античный вечер',
-    subtitle: 'От Египта до Трои',
+    subtitle: 'От Египта до Греческого двора',
     minutes: 75,
     level: 'Для всех',
-    description: 'Полный проход первого этажа без возвратов — логистически самый удобный маршрут.',
+    description:
+      'Полный проход первого этажа до Итальянского двора: от египетских древностей ' +
+      'через Трую, античность и старую живопись — логистически самый удобный маршрут.',
     color: '#7fb2c9',
-    halls: ['egypt', 'greek-archaic', 'greek-classic', 'rome', 'trojan', 'caucasus'],
+    hallIds: [
+      'egypt', 'near-east', 'troy', 'antiquity', 'bospor', 'egypt-late',
+      'byzantium', 'france', 'italy-late', 'spain', 'holland',
+      'germany', 'greek-yard', 'italian-yard',
+    ],
   },
   {
     id: 'color-light',
     title: 'Цвет и свет',
-    subtitle: 'Французская живопись',
+    subtitle: 'От византийской иконы до импрессионистов',
     minutes: 110,
     level: 'Продвинутый',
     description:
-      'Как из пейзажа Пуссена вырастает импрессионизм: последовательность залов 3 этажа по хронологии.',
+      'Путь от Византии через французский классицизм, итальянскую ведуту и голландский ' +
+      'интерьер к живописи второго этажа — последовательность по хронологии и стилю.',
     color: '#d98b6a',
-    halls: ['french-17', 'french-18', 'french-19', 'realism', 'impressionism', 'post-impressionism'],
+    hallIds: [
+      'byzantium', 'france', 'italy-late', 'spain', 'holland', 'germany',
+      'italy-17a', 'italy-17b',
+    ],
   },
   {
     id: 'with-kids',
@@ -40,26 +53,23 @@ export const ROUTES = [
     minutes: 60,
     level: 'Семейный',
     description:
-      'Короткие залы с понятными детям сюжетам: мумии, золото, корабли и большая гипсовая коллекция.',
+      'Короткие залы с понятными детям сюжетами: мумии, золото, корабли, «Давид» ' +
+      'и кондотьер на лошади — и никаких залов «без окна».',
     color: '#8fc08a',
-    halls: ['egypt', 'trojan', 'sculpture-hall', 'music'],
+    hallIds: ['egypt', 'troy', 'greek-yard', 'italian-yard'],
   },
   {
-    id: 'rembrandt-room',
-    title: 'Один зал, но внимательно',
+    id: 'michelangelo',
+    title: 'Микеланджело: оригинал и слепок',
     subtitle: 'Медленный взгляд',
     minutes: 45,
     level: 'Для вдумчивых',
     description:
-      'Маршрут из одного зала — с заданиями на внимательность. Подходит для второго и третьего визита.',
+      'Маршрут из двух точек: «Давид» внизу (слепки) и «Давид» на втором этаже — ' +
+      'чтобы увидеть, как мастерская и академическая традиция переосмысляют одно и то же.',
     color: '#b39ddb',
-    halls: ['dutch'],
+    hallIds: ['italian-yard', 'casts-michelangelo'],
   },
 ];
-
-// hallIds — публичное поле для компонента маршрута и store.
-for (const route of ROUTES) {
-  route.hallIds = route.halls;
-}
 
 export const ROUTES_BY_ID = new Map(ROUTES.map((r) => [r.id, r]));

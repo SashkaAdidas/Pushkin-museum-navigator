@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Перенаправляем…</title>
+    <script>
+      var SEGMENTS = 1; // глубина базы: '/' -> 0, '/имя-репозитория/' -> 1
+      var target = location.pathname.split('/').slice(SEGMENTS).join('/');
+      var params = new URLSearchParams(location.search);
+      params.set('from', target);
+      var query = params.toString();
+      location.replace(
+        location.pathname.slice(0, location.pathname.indexOf('/404.html')) + '/?' + query,
+      );
+    </script>
+  </head>
+  <body>
+    <p>Если перенаправление не произошло, <a href="./">откройте главную страницу</a>.</p>
+  </body>
+</html>

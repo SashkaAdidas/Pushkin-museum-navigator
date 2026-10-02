@@ -1,135 +1,94 @@
-// Игровая конфигурация: уровни, бейджи, награды.
+/**
+ * Правила геймификации: XP, уровни, бейджи.
+ *
+ * ВАЖНО: бейджей ровно 5 — и все они достижимы в этой модели,
+ * потому что их проверки опираются только на те счётчики,
+ * которые реально растут в store (см. computeStats в game/store.jsx).
+ */
 
 export const XP_RULES = {
-  HALL_VISIT: 20, // зал закрыт по чекпойнт-коду
-  ROUTE_STEP: 10, // шаг маршрута
-  ROUTE_FINISH: 60, // маршрут пройден целиком
-  QUIZ_CORRECT: 15,
-  QUIZ_HINT_COST: 5,
-  FIRST_STEPS_BONUS: 25, // приветственный бонус за первый закрытый зал
+  HALL_VISIT: 40, // зашёл и подтвердил чекпойнт
+  FIRST_STEPS_BONUS: 25, // первый зал в игре
+  ROUTE_STEP: 15, // шаг маршрута
+  ROUTE_FINISH: 80, // маршрут целиком
+  QUIZ_CORRECT: 30, // верный ответ
+  QUIZ_HINT_COST: 10, // штраф, если взял подсказку
+  STREAK_BONUS: 10, // за каждую серию из 3 верных подряд
 };
 
 export const LEVELS = [
-  { level: 1, title: 'Зритель', xp: 0, note: 'Вы вошли в главное здание' },
-  { level: 2, title: 'Посетитель', xp: 60, note: 'Первые три зала позади' },
-  { level: 3, title: 'Любознательный', xp: 150, note: 'Вы уже знаете, где что лежит' },
-  { level: 4, title: 'Знаток этажа', xp: 280, note: 'Уверенно двигаетесь между экспозициями' },
-  { level: 5, title: 'Хранитель маршрутов', xp: 450, note: 'Вы проходите маршруты целиком' },
-  { level: 6, title: 'Собиратель залов', xp: 650, note: 'Почти вся навигация вам открыта' },
-  { level: 7, title: 'Пушкинист', xp: 900, note: 'Максимальная глубина погружения' },
-];
-
-export const BADGES = [
-  {
-    id: 'first-step',
-    title: 'Первый шаг',
-    icon: '👣',
-    desc: 'Закрыть первый зал по чекпойнт-коду',
-    check: (s) => s.visited.length >= 1,
-  },
-  {
-    id: 'five-halls',
-    title: 'Пять залов',
-    icon: '🚪',
-    desc: 'Закрыть пять залов',
-    check: (s) => s.visited.length >= 5,
-  },
-  {
-    id: 'half-way',
-    title: 'Половина музея',
-    icon: '🧭',
-    desc: 'Закрыть половину всех залов',
-    check: (s) => s.visited.length >= Math.ceil(s.totalHalls / 2),
-  },
-  {
-    id: 'full-museum',
-    title: 'Весь музей',
-    icon: '🏛️',
-    desc: 'Закрыть все залы главной экспозиции',
-    check: (s) => s.visited.length >= s.totalHalls,
-  },
-  {
-    id: 'floor-master-1',
-    title: 'Хозяин античности',
-    icon: '🏺',
-    desc: 'Все залы 1 этажа',
-    check: (s) => s.floorDone[1],
-  },
-  {
-    id: 'floor-master-2',
-    title: 'Хозяин старой живописи',
-    icon: '🖼️',
-    desc: 'Все залы 2 этажа',
-    check: (s) => s.floorDone[2],
-  },
-  {
-    id: 'floor-master-3',
-    title: 'Хозяин импрессионистов',
-    icon: '🎨',
-    desc: 'Все залы 3 этажа',
-    check: (s) => s.floorDone[3],
-  },
-  {
-    id: 'route-first',
-    title: 'Первый маршрут',
-    icon: '🧵',
-    desc: 'Пройти любой маршрут до конца',
-    check: (s) => s.routesFinished.length >= 1,
-  },
-  {
-    id: 'route-all',
-    title: 'Куратор выходного дня',
-    icon: '🗺️',
-    desc: 'Пройти все маршруты до конца',
-    check: (s) => s.routesFinished.length >= s.totalRoutes,
-  },
-  {
-    id: 'quiz-first',
-    title: 'Первый ответ',
-    icon: '💡',
-    desc: 'Ответить верно на первый вопрос',
-    check: (s) => s.quizCorrect >= 1,
-  },
-  {
-    id: 'quiz-streak',
-    title: 'Пять подряд',
-    icon: '🔥',
-    desc: 'Пять верных ответов подряд',
-    check: (s) => s.bestStreak >= 5,
-  },
-  {
-    id: 'quiz-perfect',
-    title: 'Без промахов',
-    icon: '🎯',
-    desc: 'Верно ответить на все вопросы викторины',
-    check: (s) => s.quizCorrect >= s.totalQuiz,
-  },
-  {
-    id: 'scholar',
-    title: 'Сотня очков',
-    icon: '⭐',
-    desc: 'Набрать 100 XP',
-    check: (s) => s.xp >= 100,
-  },
-  {
-    id: 'collector',
-    title: 'Четыре этажа',
-    icon: '🪜',
-    desc: 'Побывать хотя бы по одному залу на каждом этаже',
-    check: (s) => s.floorsTouched >= 4,
-  },
+  { level: 1, title: 'Первый шаг', min: 0, icon: '🎫' },
+  { level: 2, title: 'Зритель', min: 120, icon: '👀' },
+  { level: 3, title: 'Искатель', min: 320, icon: '🧭' },
+  { level: 4, title: 'Ценитель', min: 640, icon: '🏛️' },
+  { level: 5, title: 'Хранитель', min: 1100, icon: '🗝️' },
+  { level: 6, title: 'Академик', min: 1700, icon: '🎓' },
 ];
 
 export function levelForXp(xp) {
   let current = LEVELS[0];
-  for (const l of LEVELS) if (xp >= l.xp) current = l;
-  const next = LEVELS.find((l) => l.xp > xp) || null;
-  const span = next ? next.xp - current.xp : 1;
-  const into = next ? xp - current.xp : 1;
+  for (const l of LEVELS) if (xp >= l.min) current = l;
+  const next = LEVELS.find((l) => l.min > xp) || null;
+  const span = next ? next.min - current.min : 1;
+  const filled = next ? xp - current.min : 1;
   return {
     ...current,
     next,
-    remaining: next ? next.xp - xp : 0,
-    progress: next ? Math.min(1, into / span) : 1,
+    toNext: next ? Math.max(0, next.min - xp) : 0,
+    progress: next ? Math.min(1, filled / span) : 1,
   };
 }
+
+/**
+ * @param {{visited:string[], totalHalls:number, floorDone:Record<number,boolean>,
+ *          floorsTouched:number, routesFinished:string[], totalRoutes:number,
+ *          quizCorrect:number, totalQuiz:number, bestStreak:number, xp:number}} s
+ */
+export const BADGES = [
+  {
+    id: 'first-blood',
+    title: 'Первый шаг',
+    icon: '🚪',
+    hint: 'Подтвердить чекпойнт в любом зале.',
+    check: (s) => s.visited.length >= 1,
+  },
+  {
+    id: 'floor-1',
+    title: 'Весь первый этаж',
+    icon: '🏛️',
+    hint: 'Обойти все 14 залов первого этажа.',
+    check: (s) => s.floorDone?.[1] === true,
+  },
+  {
+    id: 'floor-2',
+    title: 'Весь второй этаж',
+    icon: '🖼️',
+    hint: 'Обойти все 11 залов второго этажа.',
+    check: (s) => s.floorDone?.[2] === true,
+  },
+  {
+    id: 'route-master',
+    title: 'По ниточке',
+    icon: '🧵',
+    hint: 'Пройти любой маршрут от точки до точки.',
+    check: (s) => s.routesFinished.length >= 1,
+  },
+  {
+    id: 'quiz-master',
+    title: 'Знаток',
+    icon: '💡',
+    hint: 'Ответить верно на 8 вопросов викторины.',
+    check: (s) => s.quizCorrect >= 8,
+  },
+];
+
+export const TOTAL_BADGES = BADGES.length;
+
+/** Тексты подсказок для «Что дальше?» */
+export const QUEST_LOG = [
+  { id: 'visit', text: 'Найди свободный зал и подтверди его код на чекпойнте.' },
+  { id: 'route', text: 'Открой маршрут и пройди его по ниточке — там XP за каждый шаг.' },
+  { id: 'quiz', text: 'Загляни в викторину: 8 верных ответов дают бейдж «Знаток».' },
+  { id: 'floor-1', text: 'Первый этаж: 14 залов от египетских ушебти до венецианской живописи.' },
+  { id: 'floor-2', text: 'Второй этаж: 11 залов — слепки, галерея и коллекция монет.' },
+];
